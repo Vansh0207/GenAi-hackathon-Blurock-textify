@@ -10,7 +10,7 @@ const Footer = () => {
                     <Link to={'/'} className="flex items-center justify-center gap-3">
                         <img src="logo.jpg" alt="QuizLabs" className="md:h-16 h-12 mr-0" />
                     </Link>
-                    <p className="text-gray-500 mb-2">
+                    <p className="text-gray-200 mb-2">
                         Transform YouTube videos into interactive quizzes and insightful summaries.
                     </p>
                     <div className="flex flex-row gap-2 w-full items-center justify-center">
@@ -59,8 +59,8 @@ const Footer = () => {
                 </div>
             </div>
             <div className="bg-blue-50 dark:bg-[#6D758C] text-center text-gray-300 md:py-5 py-4 px-4">
-                <p className="text-sm text-red-400">
-                    Copyright &copy; 2024 <span className="text-red-500 font-bold">QuizLabs</span>.
+                <p className="text-sm text-red-600">
+                    Copyright &copy; 2024 <span className="text-red-700 font-bold">QuizLabs</span>.
                 </p>
             </div>
         </footer>

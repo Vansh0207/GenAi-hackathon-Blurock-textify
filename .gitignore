@@ -1,5 +1,14 @@
+# Node modules
+node_modules/
+
+# Python virtual environment
 whisper_env/
 
+# Virtual environments
 venv/
 
+# Uploads directory
 uploads/
+
+# Environment variable file
+.env
