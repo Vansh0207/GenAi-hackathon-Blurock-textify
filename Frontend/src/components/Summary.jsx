@@ -34,61 +34,58 @@ const SummaryPage = () => {
     const handleGenerateQuiz = async () => {
         try {
             setLoading(true);
-    
+
             const transcription = videoDetails.transcription;
-    
+
             const response = await axios.post(
                 'http://127.0.0.1:5000/modify',
                 {
-                    modification_input: 'give me the 5 quiz questions from the text in JSON format, including correct answers.',
+                    modification_input: 'give me the 5 quiz questions from the text in JSON format, in the format of question as string, options as array of strings, correctAns as string.',
                     transcription: transcription,
                 },
                 { headers: { 'Content-Type': 'application/json' } }
             );
-    
+
             console.log('Response from Python backend:', response.data);
-    
+
             let modifiedText = response.data.modified_text;
-    
+
+            console.log("modifiedText", modifiedText);
+
             // Clean the response by extracting the JSON part
             const jsonStartIndex = modifiedText.indexOf('[');
             const jsonEndIndex = modifiedText.lastIndexOf(']') + 1;
             const jsonString = modifiedText.slice(jsonStartIndex, jsonEndIndex);
-    
+
             console.log('Extracted JSON string:', jsonString);
-    
+
             const quizQuestions = JSON.parse(jsonString);
-    
+
             console.log('Parsed quiz questions:', quizQuestions);
-    
-            // Modify the field name from `correctAnswer` to `correctAns`
-            const modifiedQuizQuestions = quizQuestions.map(q => ({
-                ...q,
-                correctAns: q.correctAnswer,
-            }));
-    
-            console.log('Modified quiz questions:', modifiedQuizQuestions);
-    
+
             // Send the modified questions to the backend
             const saveQuizResponse = await axios.post(
                 'http://localhost:8000/api/question/saveQuestion',
-                { quizQuestions: modifiedQuizQuestions, videoId: videoDetails._id },
+                { quizQuestions: quizQuestions, videoId: videoDetails._id },
                 { headers: { 'Content-Type': 'application/json' } }
             );
-    
+
             if (saveQuizResponse.data.success) {
                 alert('Quiz generated successfully!');
             } else {
-                alert('Failed to save quiz.');
+                // alert('Failed to save quiz.');
+                console.log("Failed to save the quiz");
             }
+            navigate(`/quiz/${videoDetails._id}`);
         } catch (error) {
             console.error('Error generating quiz:', error.message);
-            alert(error.message);
+            // alert(error.message);
         } finally {
             setLoading(false);
+            navigate(`/quiz/${videoDetails._id}`);
         }
     };
-    
+
     if (loading) {
         return <div>Loading...</div>;
     }

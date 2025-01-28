@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const questionSchema = new mongoose.Schema({
-    question: { type: String, required: true, unique: true },
-    options: [{ type: String, required: true, unique: true }],
-    correctAns: { type: String, required: true }, // Change to correctAnswer
+    question: { type: String, required: true},
+    options: [{ type: String, required: true }],
+    correctAns: [{ type: String, required: true }], // Change to array of strings
     videoId: { type: mongoose.Schema.Types.ObjectId, ref: "Video" },
 }, { timestamps: true });
 
