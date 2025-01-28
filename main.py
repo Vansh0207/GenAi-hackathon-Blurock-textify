@@ -1,13 +1,16 @@
 from flask import Flask, render_template, request, jsonify
 import os
 import whisper
+import requests
 from groq import Groq
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Load Whisper model
 
@@ -41,18 +44,48 @@ def index():
     return render_template('index.html')
 
 # API route to transcribe audio using Whisper
+# @app.route('/transcribe', methods=['POST'])
+# def transcribe():
+#     # Get audio file
+#     file = request.files['file']
+#     file_path = os.path.join("uploads", file.filename)
+#     file.save(file_path)
+
+#     # Transcribe the audio
+#     result = model.transcribe(file_path)
+#     transcription = result['text']
+
+#     return jsonify({'transcription': transcription})
+
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
-    # Get audio file
-    file = request.files['file']
-    file_path = os.path.join("uploads", file.filename)
-    file.save(file_path)
+    try:
+        # Check if file is received
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
+        
+        # Get audio file
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+        
+        # Save file to a directory
+        file_path = os.path.join("uploads", file.filename)
+        file.save(file_path)
 
-    # Transcribe the audio
-    result = model.transcribe(file_path)
-    transcription = result['text']
+        # Transcribe the audio (assuming model.transcribe is correctly implemented)
+        result = model.transcribe(file_path)
+        transcription = result['text']
 
-    return jsonify({'transcription': transcription})
+        # Return transcription as JSON response
+        return jsonify({'transcription': transcription})
+
+    except Exception as e:
+        # Log error message for debugging
+        print("Error occurred:", e)
+        return jsonify({'error': str(e)}), 500
+
 
 # API route to modify text using Groq API
 @app.route('/modify', methods=['POST'])

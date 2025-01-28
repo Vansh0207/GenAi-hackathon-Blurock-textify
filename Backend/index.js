@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import dotenv from 'dotenv';
 import connectDB from "./utils/db.js";
 import userRoutes from "./routes/user.routes.js"
+import videoRoutes from "./routes/video.routes.js"
 import { app, server } from "./socket/socket.js";
 // import path from "path";
  
@@ -25,6 +26,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use('/api/user', userRoutes);
+app.use('/api/video', videoRoutes);
 
 server.listen(PORT, () => {
     connectDB();
