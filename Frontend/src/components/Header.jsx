@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
+import { useSelector } from 'react-redux'
+import InitialsAvatar from 'react-initials-avatar';
 
 export default function Header() {
+  const { user } = useSelector(store => store.auth);
+
   return (
     <header className="bg-gray-700 text-white shadow-lg">
       <div className="container mx-auto flex justify-between items-center p-4">
@@ -21,13 +25,15 @@ export default function Header() {
             Contact
           </Link>
           <div className="relative">
-            <Link to="/profile">
-              <img
-                src="/user.png"
-                alt="User Icon"
-                className="w-8 h-8 rounded-full border-2 border-white"
-              />
-            </Link>
+            <div className="relative">
+              <Link to={`/profile/${user?._id}`} className="cursor-pointer">
+                <img
+                  src={user?.profilePicture || "/user.png"}
+                  alt="User Icon"
+                  className="w-8 h-8 rounded-full border-2 border-white"
+                />
+              </Link>
+            </div>
           </div>
         </nav>
       </div>

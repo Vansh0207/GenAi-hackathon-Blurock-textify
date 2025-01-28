@@ -1,23 +1,28 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import Header from "./components/Header"
-import Home from "./components/Home"
-import Footer from "./components/Footer"
-import Signup from "./components/Signup"
-import Login from "./components/Login"
-import ProtectedRoutes from "./components/ProtectedRoutes"
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Home from "./components/Home";
+import Signup from "./components/Signup";
+import Login from "./components/Login";
+import ProtectedRoutes from "./components/ProtectedRoutes";
+import Profile from "./components/Profile";
+import MainLayout from "./components/MainLayout";
 
 const browserRouter = createBrowserRouter([
   {
     path: "/",
     element:
       <ProtectedRoutes>
-        <Header />
-        <Home/>
-        <Footer/>
-      </ProtectedRoutes>
-    ,
-    // children: [
-    // ]
+        <MainLayout />
+      </ProtectedRoutes>,
+    children: [
+      {
+        path: '/',
+        element: <Home />
+      },
+      {
+        path: '/profile/:id',
+        element: <Profile />
+      },
+    ]
   },
   {
     path: '/login',
@@ -27,16 +32,14 @@ const browserRouter = createBrowserRouter([
     path: '/signup',
     element: <Signup />
   },
-])
+]);
 
 function App() {
-
   return (
     <>
-      {/* <Header/> */}
       <RouterProvider router={browserRouter} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
