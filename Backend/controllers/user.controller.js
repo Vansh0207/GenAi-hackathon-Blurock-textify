@@ -39,12 +39,15 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+
         if (!email || !password) {
             return res.status(401).json({
                 message: "Empty fields!!!",
                 success: false,
             });
         }
+
+        // Find user by email
         let user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({
@@ -52,43 +55,65 @@ export const login = async (req, res) => {
                 success: false,
             });
         }
+
+        // Compare password
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
             return res.status(401).json({
                 message: "Invalid email or password",
                 success: false,
             });
-        };
+        }
 
-        const token = await jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: '1d' });
+        // Generate JWT token
+        const token = await jwt.sign(
+            { userId: user._id },
+            process.env.SECRET_KEY,
+            { expiresIn: '1d' }
+        );
 
-        // populate each post if in the posts array
+        // Populate each video if it exists in the videos array
         const populatedVideos = await Promise.all(
             user.videos.map(async (videoId) => {
                 const video = await Video.findById(videoId);
-                if (video.author.equals(user._id)) {
+
+                // Check if video exists and if the author matches the user
+                if (video && video.author && video.author.equals(user._id)) {
                     return video;
                 }
+
+                // Return null if video is not found or author doesn't match
                 return null;
             })
-        )
+        );
 
+        // Filter out null values from the populatedVideos array
+        const validVideos = populatedVideos.filter(video => video !== null);
+
+        // Construct user object for the response
         user = {
             _id: user._id,
             username: user.username,
             email: user.email,
             profilePicture: user.profilePicture,
-            videos: populatedVideos,
-        }
+            videos: validVideos,
+        };
 
-        return res.cookie('token', token, { httpOnly: true, sameSite: 'strict', maxAge: 1 * 24 * 60 * 60 * 1000 }).json({
-            message: `Welcome back ${user.username}`,
-            success: true,
-            user
-        });
+        // Send the response with a cookie
+        return res
+            .cookie('token', token, { httpOnly: true, sameSite: 'strict', maxAge: 1 * 24 * 60 * 60 * 1000 })
+            .json({
+                message: `Welcome back ${user.username}`,
+                success: true,
+                user,
+            });
 
     } catch (error) {
-        console.log(error);
+        console.error("Error in login:", error);
+        res.status(500).json({
+            message: "Internal server error",
+            success: false,
+        });
     }
 };
 

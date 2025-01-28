@@ -4,6 +4,6 @@ import Authenticated from "../middlewares/Authenticated.js";
 
 const router = express.Router();
 
-router.route('/saveQuestion').post(Authenticated, saveQuestion);
+router.route('/saveQuestion').post( saveQuestion);
 
 export default router;

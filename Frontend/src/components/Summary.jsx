@@ -35,57 +35,60 @@ const SummaryPage = () => {
         try {
             setLoading(true);
     
-            // Get the transcription text
             const transcription = videoDetails.transcription;
     
-            // Send request to Python backend
             const response = await axios.post(
                 'http://127.0.0.1:5000/modify',
-                { modification_input: 'give me the 5 quiz questions from the text in json format as question as string, options as array of objects, correctAns as string', transcription },
+                {
+                    modification_input: 'give me the 5 quiz questions from the text in JSON format, including correct answers.',
+                    transcription: transcription,
+                },
                 { headers: { 'Content-Type': 'application/json' } }
             );
     
-            const modifiedText = response.data.modified_text;
-            console.log("Modified Text:", modifiedText);
+            console.log('Response from Python backend:', response.data);
     
-            // Parse and map quiz questions to match the schema
-            const quizQuestions = JSON.parse(modifiedText).map(q => ({
-                question: q.question,
-                options: q.options,
-                correctAns: q.correct,
+            let modifiedText = response.data.modified_text;
+    
+            // Clean the response by extracting the JSON part
+            const jsonStartIndex = modifiedText.indexOf('[');
+            const jsonEndIndex = modifiedText.lastIndexOf(']') + 1;
+            const jsonString = modifiedText.slice(jsonStartIndex, jsonEndIndex);
+    
+            console.log('Extracted JSON string:', jsonString);
+    
+            const quizQuestions = JSON.parse(jsonString);
+    
+            console.log('Parsed quiz questions:', quizQuestions);
+    
+            // Modify the field name from `correctAnswer` to `correctAns`
+            const modifiedQuizQuestions = quizQuestions.map(q => ({
+                ...q,
+                correctAns: q.correctAnswer,
             }));
     
-            console.log("Quiz Questions:", quizQuestions);
+            console.log('Modified quiz questions:', modifiedQuizQuestions);
     
-            // Send to Node.js backend
+            // Send the modified questions to the backend
             const saveQuizResponse = await axios.post(
                 'http://localhost:8000/api/question/saveQuestion',
-                {
-                    quizQuestions,
-                    videoId: videoDetails._id,
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    withCredentials: true, // Send cookies with request
-                }
+                { quizQuestions: modifiedQuizQuestions, videoId: videoDetails._id },
+                { headers: { 'Content-Type': 'application/json' } }
             );
     
             if (saveQuizResponse.data.success) {
                 alert('Quiz generated successfully!');
-                navigate(`/quiz-summary/${saveQuizResponse.data.quizId}`);
             } else {
                 alert('Failed to save quiz.');
             }
         } catch (error) {
-            console.error('Error generating quiz:', error);
-            alert('An error occurred while generating the quiz.');
+            console.error('Error generating quiz:', error.message);
+            alert(error.message);
         } finally {
             setLoading(false);
         }
-    };    
-
+    };
+    
     if (loading) {
         return <div>Loading...</div>;
     }

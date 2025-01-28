@@ -5,36 +5,50 @@ import { Question } from "../models/question.model.js";
 export const saveQuestion = async (req, res) => {
     try {
         const { quizQuestions, videoId } = req.body;
-        const userId = req.id;
 
-        // Step 1: Save questions in the Question model
-        const questions = await Question.insertMany(quizQuestions);
+        console.log("Received Quiz Questions:", quizQuestions);
 
-        // Step 2: Update the Video model by linking the saved questions
+        // Transform the incoming quiz questions to match the schema
+        const transformedQuestions = quizQuestions.map((question) => {
+            // Ensure each question has the correctAns field
+            return {
+                question: question.question,
+                options: question.options,  // Map options directly
+                correctAns: question.correct_answer,  // Rename correct_answer to correctAns
+            };
+        });
+
+        console.log("Transformed Questions:", transformedQuestions);
+
+        // Insert transformed questions into the database
+        const questions = await Question.insertMany(transformedQuestions);
+
+        // Find the video and update with the new questions
         const video = await Video.findByIdAndUpdate(
             videoId,
             { $push: { questions: { $each: questions.map(q => q._id) } } },
             { new: true }
         );
 
-        // Step 3: Update the User model by linking the video
-        const user = await User.findByIdAndUpdate(
-            userId,
-            { $push: { videos: video._id } },
-            { new: true }
-        );
+        if (!video) {
+            return res.status(404).json({
+                success: false,
+                message: "Video not found.",
+            });
+        }
 
+        // Return success response
         res.status(200).json({
             success: true,
-            message: 'Quiz questions saved successfully.',
+            message: "Quiz questions saved successfully.",
             videoId: video._id,
-            userId: user._id,
         });
     } catch (error) {
-        console.error('Error saving quiz:', error);
+        console.error("Error saving quiz:", error.message);
         res.status(500).json({
             success: false,
-            message: 'Failed to save quiz.',
+            message: "Failed to save quiz.",
+            error: error.message,
         });
     }
 };
