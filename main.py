@@ -43,20 +43,6 @@ def authenticate_google_docs():
 def index():
     return render_template('index.html')
 
-# API route to transcribe audio using Whisper
-# @app.route('/transcribe', methods=['POST'])
-# def transcribe():
-#     # Get audio file
-#     file = request.files['file']
-#     file_path = os.path.join("uploads", file.filename)
-#     file.save(file_path)
-
-#     # Transcribe the audio
-#     result = model.transcribe(file_path)
-#     transcription = result['text']
-
-#     return jsonify({'transcription': transcription})
-
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
     try:
@@ -94,13 +80,13 @@ def modify_text():
     user_input = data.get("modification_input")
     transcription = data.get("transcription")
 
-    # Modify transcription using Groq API
+    # Modify transcription using Groq API (Llama3-8b-8192 model)
     completion = client.chat.completions.create(
         model="llama3-8b-8192",
         messages=[
             {
                 "role": "user",
-                "content": "modify this content as " + user_input + transcription
+                "content": f"Modify this content as {user_input} {transcription}"
             }
         ],
         temperature=1,
@@ -115,6 +101,7 @@ def modify_text():
         modified_text += chunk.choices[0].delta.content or ""
 
     return jsonify({'modified_text': modified_text})
+
 
 # API route to save modified text to Google Docs
 @app.route('/save_to_docs', methods=['POST'])

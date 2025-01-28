@@ -31,11 +31,60 @@ const SummaryPage = () => {
         fetchVideoDetails();
     }, [id]);
 
-
-    const handleGenerateQuiz = () => {
-        // Navigate to quiz generation page or call API to generate the quiz
-        navigate(`/generate-quiz/${id}`);
-    };
+    const handleGenerateQuiz = async () => {
+        try {
+            setLoading(true);
+    
+            // Get the transcription text
+            const transcription = videoDetails.transcription;
+    
+            // Send request to Python backend
+            const response = await axios.post(
+                'http://127.0.0.1:5000/modify',
+                { modification_input: 'give me the 5 quiz questions from the text in json format as question as string, options as array of objects, correctAns as string', transcription },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+    
+            const modifiedText = response.data.modified_text;
+            console.log("Modified Text:", modifiedText);
+    
+            // Parse and map quiz questions to match the schema
+            const quizQuestions = JSON.parse(modifiedText).map(q => ({
+                question: q.question,
+                options: q.options,
+                correctAns: q.correct,
+            }));
+    
+            console.log("Quiz Questions:", quizQuestions);
+    
+            // Send to Node.js backend
+            const saveQuizResponse = await axios.post(
+                'http://localhost:8000/api/question/saveQuestion',
+                {
+                    quizQuestions,
+                    videoId: videoDetails._id,
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    withCredentials: true, // Send cookies with request
+                }
+            );
+    
+            if (saveQuizResponse.data.success) {
+                alert('Quiz generated successfully!');
+                navigate(`/quiz-summary/${saveQuizResponse.data.quizId}`);
+            } else {
+                alert('Failed to save quiz.');
+            }
+        } catch (error) {
+            console.error('Error generating quiz:', error);
+            alert('An error occurred while generating the quiz.');
+        } finally {
+            setLoading(false);
+        }
+    };    
 
     if (loading) {
         return <div>Loading...</div>;

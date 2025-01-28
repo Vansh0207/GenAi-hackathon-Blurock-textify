@@ -5,9 +5,10 @@ import dotenv from 'dotenv';
 import connectDB from "./utils/db.js";
 import userRoutes from "./routes/user.routes.js"
 import videoRoutes from "./routes/video.routes.js"
+import questionRoutes from "./routes/question.routes.js"
 import { app, server } from "./socket/socket.js";
 // import path from "path";
- 
+
 dotenv.config({});
 
 const PORT = process.env.PORT || 8000;
@@ -27,6 +28,7 @@ app.use(cors(corsOptions));
 
 app.use('/api/user', userRoutes);
 app.use('/api/video', videoRoutes);
+app.use('/api/question', questionRoutes);
 
 server.listen(PORT, () => {
     connectDB();

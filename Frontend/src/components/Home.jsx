@@ -60,8 +60,8 @@ export default function Home() {
                     console.log("Transcription: ", transcription);
 
                     // 3. Call the Node.js backend to save transcription in the database
-                    console.log("Video ID", video._id);
-                    console.log("Video URL", video.videoUrl);
+                    // console.log("Video ID", video._id);
+                    // console.log("Video URL", video.videoUrl);
                     const payload = {
                         videoId: video._id, // Use the video ID from the upload response
                         transcription: transcription, // Transcription text from Python backend
