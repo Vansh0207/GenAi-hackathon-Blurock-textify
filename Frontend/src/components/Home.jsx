@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
     const navigate = useNavigate();
     const [file, setFile] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -15,12 +17,13 @@ export default function Home() {
             alert("Please select a file.");
             return;
         }
-    
+
         try {
             // 1. Upload the video to the Node.js backend
+            setLoading(true);
             const formData = new FormData();
             formData.append("file", file);
-    
+
             // Send request to Node.js backend to upload the video
             const uploadResponse = await axios.post(
                 "http://localhost:8000/api/video/uploadVideo",
@@ -32,15 +35,15 @@ export default function Home() {
                     withCredentials: true, // Send cookies with request
                 }
             );
-    
+
             if (uploadResponse.data.success) {
                 const video = uploadResponse.data.video; // The uploaded video object from Node.js
                 const videoUrl = video.videoUrl;
-    
+
                 // 2. Send the video file to the Python backend for transcription
                 const transcriptionFormData = new FormData();
                 transcriptionFormData.append("file", file); // Send the actual file here
-    
+
                 const transcriptionResponse = await axios.post(
                     "http://127.0.0.1:5000/transcribe",
                     transcriptionFormData,
@@ -50,12 +53,12 @@ export default function Home() {
                         },
                     }
                 );
-    
+
                 const transcription = transcriptionResponse.data.transcription;
-    
+
                 if (transcription) {
                     console.log("Transcription: ", transcription);
-    
+
                     // 3. Call the Node.js backend to save transcription in the database
                     console.log("Video ID", video._id);
                     console.log("Video URL", video.videoUrl);
@@ -63,7 +66,7 @@ export default function Home() {
                         videoId: video._id, // Use the video ID from the upload response
                         transcription: transcription, // Transcription text from Python backend
                     };
-    
+
                     // Change headers to send application/json
                     const saveTranscriptionResponse = await axios.post(
                         "http://localhost:8000/api/video/uploadTranscription",
@@ -75,25 +78,28 @@ export default function Home() {
                             withCredentials: true,
                         }
                     );
-    
+
                     if (saveTranscriptionResponse.data.success) {
-                        alert("Transcription saved successfully.");
-                        // navigate('/summary');
+                        // alert("Transcription saved successfully.");
+                        navigate(`/summary/${video._id}`);
                     } else {
                         alert("Failed to save transcription.");
                     }
                 } else {
                     alert("Failed to get transcription from Python backend.");
                 }
+
+                setLoading(false);
             } else {
                 alert("Failed to upload video.");
             }
         } catch (error) {
             console.error("Error during file upload and processing:", error);
             alert(error);
+        } finally {
+            setLoading(false);
         }
-    };    
-
+    };
 
     return (
         <div className="bg-[#0B1930] min-h-[90vh] flex flex-col items-center justify-center text-white p-4">
@@ -131,8 +137,18 @@ export default function Home() {
                     <button
                         className="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg font-bold text-lg flex items-center justify-center space-x-2 hover:bg-blue-700"
                         onClick={handleUpload}
+                        disabled={loading}
                     >
-                        Get your Quiz/Summary for free →
+                        {
+                            loading ? (
+                                <div className="flex items-center justify-center w-full cursor-not-allowed" disabled>
+                                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                    Please wait
+                                </div>
+                            ) : (
+                                <span>Get your Quiz/Summary for free →</span>
+                            )
+                        }
                     </button>
                 </div>
             </div>

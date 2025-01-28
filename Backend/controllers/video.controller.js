@@ -24,6 +24,7 @@ export const uploadVideo = async (req, res) => {
         // Create a new Video document
         const newVideo = new Video({
             videoUrl: cloudResponse.secure_url,
+            title: req.file.originalname,
             summary: "Default summary", // Replace with actual summary if available
         });
 
@@ -112,6 +113,41 @@ export const uploadTranscription = async (req, res) => {
         console.error(error);
         return res.status(500).json({
             message: 'Failed to update transcription.',
+            success: false,
+        });
+    }
+};
+
+
+export const getVideoDetails = async (req, res) => {
+    try {
+        const { id } = req.params; // Get video ID from the URL parameters
+
+        // Find the video by ID, assuming 'Video' is your model
+        const video = await Video.findById(id); // You can populate the 'user' field if needed
+
+        if (!video) {
+            return res.status(404).json({
+                message: 'Video not found.',
+                success: false,
+            });
+        }
+
+        // Return the video details, including the summary and any other required fields
+        return res.status(200).json({
+            success: true,
+            video: {
+                _id: video._id,
+                title: video.title,
+                summary: video.summary ?? "NA",
+                videoUrl: video.videoUrl,
+                transcription: video.transcription,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: 'Failed to fetch video details.',
             success: false,
         });
     }

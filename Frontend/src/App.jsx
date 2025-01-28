@@ -5,6 +5,7 @@ import Login from "./components/Login";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import Profile from "./components/Profile";
 import MainLayout from "./components/MainLayout";
+import SummaryPage from "./components/Summary";
 
 const browserRouter = createBrowserRouter([
   {
@@ -23,6 +24,13 @@ const browserRouter = createBrowserRouter([
         element:
           <ProtectedRoutes>
             <Profile />
+          </ProtectedRoutes>
+      },
+      {
+        path: '/summary/:id',
+        element:
+          <ProtectedRoutes>
+            <SummaryPage />
           </ProtectedRoutes>
       },
     ]
