@@ -29,10 +29,10 @@ const QuizPage = () => {
         const updatedOptions = [...selectedOptions]; // Copy the current selected options
 
         // Map index to corresponding letter (A for 0, B for 1, C for 2, etc.)
-        const letter = String.fromCharCode(65 + index); // 65 is the ASCII code for 'A'
+        // const letter = String.fromCharCode(65 + index); // 65 is the ASCII code for 'A'
 
         // Now update the selectedOptions with the letter-based format
-        updatedOptions[currentQuestionIndex] = `${letter}. ${option}`; // Store as A. Option, B. Option, etc.
+        updatedOptions[currentQuestionIndex] = `${option}`; // Store as A. Option, B. Option, etc.
 
         setSelectedOptions(updatedOptions); // Update the selectedOptions array
     };
@@ -126,7 +126,7 @@ const QuizPage = () => {
                                                 type="radio"
                                                 name={`question-${currentQuestionIndex}`}
                                                 value={option}
-                                                checked={selectedOptions[currentQuestionIndex] === `${String.fromCharCode(65 + index)}. ${option}`} // Compare using letter (A, B, etc.)
+                                                checked={selectedOptions[currentQuestionIndex] === `${option}`}
                                                 onChange={() => handleOptionSelect(index, option)} // Pass index and option
                                                 className="cursor-pointer"
                                             />
