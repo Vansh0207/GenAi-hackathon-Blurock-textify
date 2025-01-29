@@ -6,26 +6,23 @@ import { Loader2 } from "lucide-react";
 
 const HistoryPage = () => {
     const navigate = useNavigate();
-    const [history, setHistory] = useState([]); // To store the user’s videos and questions
-    const [loading, setLoading] = useState(true); // To manage loading state
-    const [selectedVideo, setSelectedVideo] = useState(null); // To store the selected video
+    const [history, setHistory] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedVideo, setSelectedVideo] = useState(null);
     const selectedVideoRef = useRef(null);
 
-    // Fetch the current user’s data and videos
     const { user } = useSelector(store => store.auth);
 
     useEffect(() => {
-        if (!user?._id) return; // Ensure user._id exists
+        if (!user?._id) return;
 
         const fetchUserData = async () => {
             try {
-                // Log user ID to check if it's being passed correctly
                 console.log("User ID:", user?._id);
 
                 const response = await axios.get(`http://localhost:8000/api/user/userData/${user._id}`);
-                console.log("API Response Data:", response.data); // Debugging API response
+                console.log("API Response Data:", response.data);
 
-                // Check if the videos array is in the response and set it to state
                 setHistory(Array.isArray(response.data.user.videos) ? response.data.user.videos : []);
             } catch (error) {
                 console.error("Error fetching videos:", error);
@@ -37,21 +34,17 @@ const HistoryPage = () => {
         fetchUserData();
     }, [user?._id]);
 
-    // Handle video click to display full video details
     const handleVideoClick = (videoId) => {
         const selected = history.find((video) => video._id === videoId);
-        setSelectedVideo(selected); // Store selected video to show details
+        setSelectedVideo(selected);
     };
 
-    // Handle adding a new video
     const handleAddNew = () => {
         navigate("/");
     };
 
-    // Calculate total score of the user
     const totalScore = history.reduce((acc, video) => acc + (video.score || 0), 0);
 
-    // Log history to ensure it's being set correctly
     useEffect(() => {
         console.log("History state:", history);
     }, [history]);
@@ -60,10 +53,10 @@ const HistoryPage = () => {
         if (selectedVideoRef.current) {
             setTimeout(() => {
                 selectedVideoRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 100); // Delay to ensure the DOM is fully updated before scrolling
+            }, 100);
         }
     }, [selectedVideo]);
-    
+
     const getCircleScore = () => {
         const percentage = (selectedVideo.score / selectedVideo.questions.length) * 100;
         return (
@@ -106,7 +99,6 @@ const HistoryPage = () => {
                 </button>
             </div>
 
-            {/* Total Score Display */}
             <div className="mb-6 p-4 flex items-center justify-between bg-gray-200 rounded-lg text-center text-xl font-semibold">
                 <div className="flex items-center justify-center gap-4">
                     <img src="coin_gif.webp" alt="Gold Coin" className="h-8 w-8" />
@@ -121,7 +113,6 @@ const HistoryPage = () => {
                 </p>
             ) : (
                 <>
-                    {/* Display videos */}
                     {history.length === 0 ? (
                         <p>No videos found.</p>
                     ) : (
@@ -142,14 +133,12 @@ const HistoryPage = () => {
                     )}
                     {selectedVideo && (
                         <div ref={selectedVideoRef} className="mt-8 p-6 bg-gray-100 rounded-lg shadow-lg">
-                            {/* Video Title */}
+
                             <h2 className="text-2xl font-bold text-gray-800">{selectedVideo.title}</h2>
 
-                            {/* Summary & Transcription */}
                             <p className="mt-4 text-gray-700 leading-relaxed">{selectedVideo.summary}</p>
                             <p className="mt-4 text-gray-600 leading-relaxed italic">{selectedVideo.transcription}</p>
 
-                            {/* Score Display */}
                             <div className="mt-6 flex items-center gap-2">
                                 <span className="text-lg font-semibold text-gray-700">Score:</span>
                                 <div className="text-black px-3 py-1 rounded-full text-sm font-medium">
@@ -157,16 +146,14 @@ const HistoryPage = () => {
                                 </div>
                             </div>
 
-                            {/* Quiz Section */}
                             <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
                                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Quiz Questions</h3>
                                 <ul className="space-y-6">
                                     {selectedVideo.questions?.map((question, index) => (
                                         <li key={index} className="bg-gray-50 p-4 rounded-lg border">
-                                            {/* Question */}
+
                                             <p className="font-medium text-gray-900">{question.question}</p>
 
-                                            {/* Options */}
                                             <ul className="mt-3 space-y-2">
                                                 {question.options?.map((option, idx) => (
                                                     <li
@@ -179,7 +166,6 @@ const HistoryPage = () => {
                                                 ))}
                                             </ul>
 
-                                            {/* Correct Answer */}
                                             <div className="mt-3 flex items-center gap-2">
                                                 <span className="font-semibold text-gray-800">Correct Answer:</span>
                                                 <span className="bg-green-500 text-white px-3 py-1 rounded-md text-sm font-medium">
