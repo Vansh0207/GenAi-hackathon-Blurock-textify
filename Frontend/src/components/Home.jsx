@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { Loader2 } from "lucide-react";
+import TextCarousel from "./TextCrousel";
 
 export default function Home() {
     const navigate = useNavigate();
@@ -104,13 +105,17 @@ export default function Home() {
     return (
         <div className="bg-[#0B1930] min-h-[90vh] flex flex-col items-center justify-center text-white p-4">
             {/* Title & Subtitle */}
-            <div className="text-center">
+            {/* <div className="text-center">
                 <h1 className="text-3xl md:text-4xl font-extrabold my-6">
                     Transform YouTube videos into interactive quizzes and insightful summaries.
                 </h1>
                 <p className="mt-2 text-lg md:text-xl text-gray-300 my-6">
                     Transform YouTube videos or audio into engaging quizzes and summaries, providing your audience with an interactive learning experience. Easily build, edit, and track the content through the platform.
                 </p>
+            </div> */}
+
+            <div className="flex flex-col items-center justify-center text-white">
+                <TextCarousel />
             </div>
 
             {/* Input Box Section */}

@@ -29,9 +29,11 @@ export default function Header() {
 
   return (
     <header className="bg-gray-700 text-white shadow-lg">
-      <div className="container mx-auto flex justify-between items-center p-4">
+      <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl font-bold">
-          <Link to="/">QuizLabs</Link>
+          <Link to={'/'} className="flex items-center justify-center gap-3">
+            <img src="logo.png" alt="QuizLabs" className="md:h-20 h-16 mr-0" />
+          </Link>
         </div>
         <nav className="flex items-center space-x-6">
           <Link to="/" className="hover:underline">
