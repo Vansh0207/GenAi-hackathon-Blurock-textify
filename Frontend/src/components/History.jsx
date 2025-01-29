@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -9,6 +9,7 @@ const HistoryPage = () => {
     const [history, setHistory] = useState([]); // To store the user’s videos and questions
     const [loading, setLoading] = useState(true); // To manage loading state
     const [selectedVideo, setSelectedVideo] = useState(null); // To store the selected video
+    const selectedVideoRef = useRef(null);
 
     // Fetch the current user’s data and videos
     const { user } = useSelector(store => store.auth);
@@ -55,6 +56,14 @@ const HistoryPage = () => {
         console.log("History state:", history);
     }, [history]);
 
+    useEffect(() => {
+        if (selectedVideoRef.current) {
+            setTimeout(() => {
+                selectedVideoRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100); // Delay to ensure the DOM is fully updated before scrolling
+        }
+    }, [selectedVideo]);
+    
     const getCircleScore = () => {
         const percentage = (selectedVideo.score / selectedVideo.questions.length) * 100;
         return (
@@ -108,7 +117,7 @@ const HistoryPage = () => {
 
             {loading ? (
                 <p className="min-w-full min-h-[80vh] flex items-center justify-center">
-                    <Loader2 className="w-10 h-10"/>
+                    <Loader2 className="w-10 h-10" />
                 </p>
             ) : (
                 <>
@@ -120,7 +129,8 @@ const HistoryPage = () => {
                             {history.map((video) => (
                                 <div
                                     key={video._id}
-                                    className="border rounded-lg p-4 shadow hover:shadow-md cursor-pointer transition"
+                                    className={`border rounded-lg p-4 shadow hover:shadow-2xl cursor-pointer transition ${selectedVideo?._id === video._id ? 'shadow-2xl bg-gray-200' : ''
+                                        }`}
                                     onClick={() => handleVideoClick(video._id)}
                                 >
                                     <h2 className="text-xl font-semibold">{video.title}</h2>
@@ -130,32 +140,51 @@ const HistoryPage = () => {
                             ))}
                         </div>
                     )}
-
                     {selectedVideo && (
-                        <div className="mt-8 p-6 bg-gray-100 rounded-lg">
-                            <h2 className="text-2xl font-bold">{selectedVideo.title}</h2>
-                            <p className="mt-4">{selectedVideo.summary}</p>
-                            <p className="mt-4">{selectedVideo.transcription}</p>
+                        <div ref={selectedVideoRef} className="mt-8 p-6 bg-gray-100 rounded-lg shadow-lg">
+                            {/* Video Title */}
+                            <h2 className="text-2xl font-bold text-gray-800">{selectedVideo.title}</h2>
 
-                            <div className="mt-4">{getCircleScore()}</div>
+                            {/* Summary & Transcription */}
+                            <p className="mt-4 text-gray-700 leading-relaxed">{selectedVideo.summary}</p>
+                            <p className="mt-4 text-gray-600 leading-relaxed italic">{selectedVideo.transcription}</p>
 
-                            {/* Display quiz questions */}
-                            <div className="mt-6">
-                                <h3 className="text-xl font-semibold">Quiz Questions</h3>
-                                <ul className="list-disc pl-6 mt-4">
+                            {/* Score Display */}
+                            <div className="mt-6 flex items-center gap-2">
+                                <span className="text-lg font-semibold text-gray-700">Score:</span>
+                                <div className="text-black px-3 py-1 rounded-full text-sm font-medium">
+                                    {getCircleScore()}
+                                </div>
+                            </div>
+
+                            {/* Quiz Section */}
+                            <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Quiz Questions</h3>
+                                <ul className="space-y-6">
                                     {selectedVideo.questions?.map((question, index) => (
-                                        <li key={index} className="my-5">
-                                            <strong>{question.question}</strong>
-                                            <ul className="list-inside mt-2">
+                                        <li key={index} className="bg-gray-50 p-4 rounded-lg border">
+                                            {/* Question */}
+                                            <p className="font-medium text-gray-900">{question.question}</p>
+
+                                            {/* Options */}
+                                            <ul className="mt-3 space-y-2">
                                                 {question.options?.map((option, idx) => (
-                                                    <li key={idx}>
-                                                        {option} {option === question.correctAns && "(Correct)"}
+                                                    <li
+                                                        key={idx}
+                                                        className={`p-2 rounded-lg ${option === question.correctAns ? 'bg-green-100 text-green-700 font-semibold' : 'text-gray-700'
+                                                            }`}
+                                                    >
+                                                        {option} {option === question.correctAns && '✅'}
                                                     </li>
                                                 ))}
                                             </ul>
-                                            <div className="flex items-center gap-1">
-                                                <p className="font-bold">Correct Ans: </p>
-                                                <p className="text-green-700">{question.correctAns}</p>
+
+                                            {/* Correct Answer */}
+                                            <div className="mt-3 flex items-center gap-2">
+                                                <span className="font-semibold text-gray-800">Correct Answer:</span>
+                                                <span className="bg-green-500 text-white px-3 py-1 rounded-md text-sm font-medium">
+                                                    {question.correctAns}
+                                                </span>
                                             </div>
                                         </li>
                                     ))}
