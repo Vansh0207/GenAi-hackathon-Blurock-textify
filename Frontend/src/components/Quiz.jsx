@@ -3,29 +3,37 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const QuizPage = () => {
-    const { id } = useParams();
+    const { id } = useParams(); // The videoId
     const [questions, setQuestions] = useState([]);
     const [submitted, setSubmitted] = useState(false);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [selectedOptions, setSelectedOptions] = useState([]); // Array to store selected options
+    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [score, setScore] = useState(0);
 
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
                 const response = await axios.get(`http://localhost:8000/api/question/${id}/questions`);
                 setQuestions(response.data.questions);
+                setSelectedOptions(new Array(response.data.questions.length).fill(''));
             } catch (error) {
                 console.error("Error fetching questions:", error.message);
             }
         };
 
         fetchQuestions();
-    }, [videoId]);
+    }, [id]);
 
-    const handleOptionSelect = (option) => {
-        const updatedOptions = [...selectedOptions];
-        updatedOptions[currentQuestionIndex] = option; // Update the option for the current question
-        setSelectedOptions(updatedOptions);
+    const handleOptionSelect = (index, option) => {
+        const updatedOptions = [...selectedOptions]; // Copy the current selected options
+
+        // Map index to corresponding letter (A for 0, B for 1, C for 2, etc.)
+        const letter = String.fromCharCode(65 + index); // 65 is the ASCII code for 'A'
+
+        // Now update the selectedOptions with the letter-based format
+        updatedOptions[currentQuestionIndex] = `${letter}. ${option}`; // Store as A. Option, B. Option, etc.
+
+        setSelectedOptions(updatedOptions); // Update the selectedOptions array
     };
 
     const handleNext = () => {
@@ -40,13 +48,66 @@ const QuizPage = () => {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        let calculatedScore = 0;
+        console.log("selected", selectedOptions);
+        console.log("object", questions);
+
+
+        questions.forEach((question, index) => {
+            console.log(`Q${index + 1}: Correct Answer = ${question.correctAns}, Selected Option = ${selectedOptions[index]}`);
+
+            if (selectedOptions[index] === question.correctAns[0]) {
+                calculatedScore++;
+            }
+        });
+
+        setScore(calculatedScore);
         setSubmitted(true);
-        console.log("Submitted Answers:", selectedOptions); // Log the selected options
-        // Send selectedOptions to the backend here if needed
+
+        try {
+            const response = await axios.post(`http://localhost:8000/api/video/${id}/score`, {
+                videoId: id,
+                score: calculatedScore,
+            });
+            console.log("Score saved successfully:", response.data);
+        } catch (error) {
+            console.error("Error saving score:", error.message);
+        }
     };
 
     const currentQuestion = questions[currentQuestionIndex];
+
+    // Function to generate circular progress
+    const getCircleScore = () => {
+        const percentage = (score / questions.length) * 100;
+        return (
+            <div className="relative flex items-center justify-center">
+                <svg width="100" height="100" className="rotate-90">
+                    <circle
+                        cx="50"
+                        cy="50"
+                        r="45"
+                        stroke="#e6e6e6"
+                        strokeWidth="10"
+                        fill="none"
+                    />
+                    <circle
+                        cx="50"
+                        cy="50"
+                        r="45"
+                        stroke="#4CAF50"
+                        strokeWidth="10"
+                        fill="none"
+                        strokeDasharray={`${(percentage / 100) * (2 * Math.PI * 45)} ${2 * Math.PI * 45}`} // Update this line for proper calculation
+                        strokeDashoffset={(2 * Math.PI * 45) * (1 - percentage / 100)} // This ensures it starts from top (0 degrees)
+                        transform="rotate(-90 50 50)"
+                    />
+                </svg>
+                <div className="absolute text-xl font-semibold">{score}</div>
+            </div>
+        );
+    };
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-gray-50">
@@ -64,11 +125,11 @@ const QuizPage = () => {
                                                 type="radio"
                                                 name={`question-${currentQuestionIndex}`}
                                                 value={option}
-                                                checked={selectedOptions[currentQuestionIndex] === option}
-                                                onChange={() => handleOptionSelect(option)}
+                                                checked={selectedOptions[currentQuestionIndex] === `${String.fromCharCode(65 + index)}. ${option}`} // Compare using letter (A, B, etc.)
+                                                onChange={() => handleOptionSelect(index, option)} // Pass index and option
                                                 className="cursor-pointer"
                                             />
-                                            <span>{option}</span>
+                                            <span>{option}</span> {/* Display the name of the option */}
                                         </label>
                                     </div>
                                 ))}
@@ -81,7 +142,7 @@ const QuizPage = () => {
                         <button
                             className="bg-blue-500 text-white py-2 px-4 rounded-md"
                             onClick={handlePrevious}
-                            disabled={currentQuestionIndex === 0}
+                            disabled={currentQuestionIndex === 0 || submitted}
                         >
                             Previous
                         </button>
@@ -105,11 +166,17 @@ const QuizPage = () => {
             ) : (
                 <div className="text-center">
                     <h2 className="text-2xl font-bold">Quiz Completed!</h2>
-                    <p className="text-lg mt-4">Your Answers:</p>
+                    <p className="text-lg mt-4">Your Score:</p>
+                    <div className="mt-4">{getCircleScore()}</div>
                     <ul className="list-disc list-inside mt-4">
                         {questions.map((question, index) => (
                             <li key={index}>
-                                <strong>Q{index + 1}:</strong> {selectedOptions[index] || "No Answer Selected"}
+                                <strong>Q{index + 1}:</strong> {selectedOptions[index] || "No Answer Selected"}{" "}
+                                {selectedOptions[index] === question.correctAns[0] ? (
+                                    <span className="text-green-500">✔️ Correct</span>
+                                ) : (
+                                    <span className="text-red-500">❌ Incorrect</span>
+                                )}
                             </li>
                         ))}
                     </ul>

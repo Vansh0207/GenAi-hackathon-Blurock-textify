@@ -152,3 +152,22 @@ export const getVideoDetails = async (req, res) => {
         });
     }
 };
+
+export const storeScore = async (req, res) => {
+    const { videoId } = req.params;
+    const { score } = req.body;
+
+    try {
+        const video = await Video.findById(videoId);
+        if (!video) {
+            return res.status(404).send("Video not found");
+        }
+
+        video.score = score;  // Assuming there's a `score` field in the video schema
+        await video.save();
+
+        res.status(200).send({ message: 'Score saved successfully', score });
+    } catch (error) {
+        res.status(500).send({ error: 'Failed to save score' });
+    }
+}
