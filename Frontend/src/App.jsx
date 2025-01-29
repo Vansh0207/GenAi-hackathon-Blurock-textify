@@ -7,6 +7,7 @@ import Profile from "./components/Profile";
 import MainLayout from "./components/MainLayout";
 import SummaryPage from "./components/Summary";
 import QuizPage from "./components/Quiz";
+import HistoryPage from "./components/History";
 
 const browserRouter = createBrowserRouter([
   {
@@ -39,6 +40,13 @@ const browserRouter = createBrowserRouter([
         element:
           <ProtectedRoutes>
             <QuizPage />
+          </ProtectedRoutes>
+      },
+      {
+        path: '/history',
+        element:
+          <ProtectedRoutes>
+            <HistoryPage />
           </ProtectedRoutes>
       },
     ]

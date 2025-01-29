@@ -188,3 +188,37 @@ export const editProfile = async (req, res) => {
         console.log(error);
     }
 };
+
+export const userData = async (req, res) => {
+    try {
+        const userId = req.params.id; // Assuming you're extracting userId from the request's token or session
+        const user = await User.findById(userId)
+            .populate({
+                path: 'videos',
+                options: { sort: { createdAt: -1 } }, // Sort videos by creation date
+                populate: {
+                    path: 'questions', // Populate the questions in each video
+                    select: 'question options correctAns', // Select specific fields to return for each question
+                }
+            });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        return res.status(200).json({
+            user,
+            success: true
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+};
