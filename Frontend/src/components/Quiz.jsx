@@ -111,54 +111,63 @@ const QuizPage = () => {
     };
 
     return (
-        <div className="max-w-4xl min-h-[80vh] mx-auto p-6 bg-gray-50">
+        <div className="max-w-4xl min-h-[80vh] mx-auto p-6">
             <h1 className="text-3xl font-bold text-center mb-6">Quiz</h1>
             {!submitted ? (
-                <div>
+                <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-2xl">
                     {currentQuestion ? (
                         <>
-                            <h2 className="text-xl font-semibold mb-4">{`Q${currentQuestionIndex + 1}. ${currentQuestion.question}`}</h2>
+                            {/* Question Title */}
+                            <h2 className="text-xl font-semibold mb-6 text-gray-800">
+                                {`Q${currentQuestionIndex + 1}. ${currentQuestion.question}`}
+                            </h2>
+
+                            {/* Options */}
                             <div className="space-y-3">
                                 {currentQuestion.options.map((option, index) => (
-                                    <div key={index}>
-                                        <label className="flex items-center space-x-2">
-                                            <input
-                                                type="radio"
-                                                name={`question-${currentQuestionIndex}`}
-                                                value={option}
-                                                checked={selectedOptions[currentQuestionIndex] === `${option}`}
-                                                onChange={() => handleOptionSelect(index, option)} // Pass index and option
-                                                className="cursor-pointer"
-                                            />
-                                            <span>{option}</span> {/* Display the name of the option */}
-                                        </label>
-                                    </div>
+                                    <label
+                                        key={index}
+                                        className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-100"
+                                    >
+                                        <input
+                                            type="radio"
+                                            name={`question-${currentQuestionIndex}`}
+                                            value={option}
+                                            checked={selectedOptions[currentQuestionIndex] === option}
+                                            onChange={() => handleOptionSelect(index, option)}
+                                            className="w-5 h-5 text-blue-500 cursor-pointer"
+                                        />
+                                        <span className="text-gray-700 text-lg">{option}</span>
+                                    </label>
                                 ))}
                             </div>
                         </>
                     ) : (
-                        <p className="min-w-full min-h-[80vh] flex items-center justify-center">
-                            <Loader2 className="w-10 h-10" />
-                        </p>
+                        <div className="min-h-[80vh] flex items-center justify-center">
+                            <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
+                        </div>
                     )}
-                    <div className="flex justify-between mt-6">
+
+                    {/* Navigation Buttons */}
+                    <div className="flex justify-between mt-8">
                         <button
-                            className="bg-blue-500 text-white py-2 px-4 rounded-md"
+                            className="bg-gray-300 text-gray-700 py-2 px-5 rounded-lg font-medium transition hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={handlePrevious}
                             disabled={currentQuestionIndex === 0 || submitted}
                         >
                             Previous
                         </button>
+
                         {currentQuestionIndex === questions.length - 1 ? (
                             <button
-                                className="bg-green-500 text-white py-2 px-4 rounded-md"
+                                className="bg-green-500 text-white py-2 px-6 rounded-lg font-medium transition hover:bg-green-600"
                                 onClick={handleSubmit}
                             >
                                 Submit
                             </button>
                         ) : (
                             <button
-                                className="bg-blue-500 text-white py-2 px-4 rounded-md"
+                                className="bg-blue-500 text-white py-2 px-6 rounded-lg font-medium transition hover:bg-blue-600"
                                 onClick={handleNext}
                             >
                                 Next
@@ -166,6 +175,7 @@ const QuizPage = () => {
                         )}
                     </div>
                 </div>
+
             ) : (
                 <div className="text-center">
                     <h2 className="text-2xl font-bold">Quiz Completed!</h2>
