@@ -134,15 +134,14 @@ export default function Home() {
                         onChange={handleFileChange}
                     />
                 </div>
-                <div className="py-4 bg-white rounded-lg shadow-md">
+                {/* <div className="py-4 bg-white rounded-lg shadow-md">
                     <label className="block text-lg font-semibold text-gray-800 mb-2">YouTube Video URL:</label>
-                    {/* <input type="file" id="audioFile" accept="audio/*,video/*" className="w-full text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 hover:bg-gray-200" /> */}
                     <input
                         type="text"
                         className="w-full text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 hover:bg-gray-200"
                         // onChange={handleFileChange}
                     />
-                </div>
+                </div> */}
 
                 <div>
                     {/* <button className="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg font-bold text-lg flex items-center justify-center space-x-2 hover:bg-blue-700">
