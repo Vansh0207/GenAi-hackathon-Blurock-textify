@@ -8,6 +8,7 @@ import MainLayout from "./components/MainLayout";
 import SummaryPage from "./components/Summary";
 import QuizPage from "./components/Quiz";
 import HistoryPage from "./components/History";
+import Contact from "./components/Contact";
 
 const browserRouter = createBrowserRouter([
   {
@@ -47,6 +48,13 @@ const browserRouter = createBrowserRouter([
         element:
           <ProtectedRoutes>
             <HistoryPage />
+          </ProtectedRoutes>
+      },
+      {
+        path: '/contact',
+        element:
+          <ProtectedRoutes>
+            <Contact />
           </ProtectedRoutes>
       },
     ]

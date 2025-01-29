@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 
 const QuizPage = () => {
     const { id } = useParams(); // The videoId
@@ -136,7 +137,9 @@ const QuizPage = () => {
                             </div>
                         </>
                     ) : (
-                        <p>Loading questions...</p>
+                        <p className="min-w-full min-h-[80vh] flex items-center justify-center">
+                            <Loader2 className="w-10 h-10" />
+                        </p>
                     )}
                     <div className="flex justify-between mt-6">
                         <button

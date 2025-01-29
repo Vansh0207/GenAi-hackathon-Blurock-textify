@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Loader2 } from 'lucide-react';
 
 const SummaryPage = () => {
     const { id } = useParams(); // Get the video ID from the URL parameter
@@ -87,11 +88,15 @@ const SummaryPage = () => {
     };
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <p className="min-w-full min-h-[80vh] flex items-center justify-center">
+                <Loader2 className="w-10 h-10" />
+            </p>
+        )
     }
 
     if (!videoDetails) {
-        return <div>No video details found.</div>;
+        return <div className="min-w-full min-h-[20vh] flex items-center justify-center font-semibold text-2xl">No video details found.</div>;
     }
 
     return (

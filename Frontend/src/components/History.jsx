@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { Loader2 } from "lucide-react";
 
 const HistoryPage = () => {
     const navigate = useNavigate();
@@ -46,10 +47,43 @@ const HistoryPage = () => {
         navigate("/");
     };
 
+    // Calculate total score of the user
+    const totalScore = history.reduce((acc, video) => acc + (video.score || 0), 0);
+
     // Log history to ensure it's being set correctly
     useEffect(() => {
         console.log("History state:", history);
     }, [history]);
+
+    const getCircleScore = () => {
+        const percentage = (selectedVideo.score / selectedVideo.questions.length) * 100;
+        return (
+            <div className="relative flex items-center justify-center">
+                <svg width="100" height="100" className="rotate-90">
+                    <circle
+                        cx="50"
+                        cy="50"
+                        r="45"
+                        stroke="#e6e6e6"
+                        strokeWidth="10"
+                        fill="none"
+                    />
+                    <circle
+                        cx="50"
+                        cy="50"
+                        r="45"
+                        stroke="#4CAF50"
+                        strokeWidth="10"
+                        fill="none"
+                        strokeDasharray={`${(percentage / 100) * (2 * Math.PI * 45)} ${2 * Math.PI * 45}`}
+                        strokeDashoffset={(2 * Math.PI * 45) * (1 - percentage / 100)}
+                        transform="rotate(-90 50 50)"
+                    />
+                </svg>
+                <div className="absolute text-xl font-semibold">{selectedVideo.score}/{selectedVideo.questions.length}</div>
+            </div>
+        );
+    };
 
     return (
         <div className="max-w-5xl min-h-[80vh] mx-auto p-6">
@@ -63,8 +97,19 @@ const HistoryPage = () => {
                 </button>
             </div>
 
+            {/* Total Score Display */}
+            <div className="mb-6 p-4 flex items-center justify-between bg-gray-200 rounded-lg text-center text-xl font-semibold">
+                <div className="flex items-center justify-center gap-4">
+                    <img src="coin_gif.webp" alt="Gold Coin" className="h-8 w-8" />
+                    Total Points Earned: {totalScore}
+                </div>
+                <button className="bg-blue-500 text-white py-1.5 px-2.5 text-sm rounded-md shadow hover:bg-blue-600 transition cursor-pointer">Reedem Now</button>
+            </div>
+
             {loading ? (
-                <p>Loading videos...</p>
+                <p className="min-w-full min-h-[80vh] flex items-center justify-center">
+                    <Loader2 className="w-10 h-10"/>
+                </p>
             ) : (
                 <>
                     {/* Display videos */}
@@ -91,6 +136,8 @@ const HistoryPage = () => {
                             <h2 className="text-2xl font-bold">{selectedVideo.title}</h2>
                             <p className="mt-4">{selectedVideo.summary}</p>
                             <p className="mt-4">{selectedVideo.transcription}</p>
+
+                            <div className="mt-4">{getCircleScore()}</div>
 
                             {/* Display quiz questions */}
                             <div className="mt-6">

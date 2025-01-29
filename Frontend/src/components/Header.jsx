@@ -28,7 +28,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-gray-700 text-white shadow-lg">
+    <header className="bg-gray-700 px-6 text-white shadow-lg">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl font-bold">
           <Link to={'/'} className="flex items-center justify-center gap-3">

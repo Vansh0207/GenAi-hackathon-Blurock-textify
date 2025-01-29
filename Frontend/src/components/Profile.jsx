@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import useGetUserProfile from '../hooks/getUserProfile';
+import { Loader2 } from 'lucide-react';
 
 const Profile = () => {
     const params = useParams();
@@ -12,7 +13,11 @@ const Profile = () => {
 
     // Handle case where user data might not be immediately available
     if (!user) {
-        return <div>Loading...</div>;
+        return (
+            <p className="min-w-full min-h-[80vh] flex items-center justify-center">
+                <Loader2 className="w-10 h-10" />
+            </p>
+        );
     }
 
     const formattedDate = user?.timestampCreate ? user.timestampCreate.toDate().toLocaleDateString() : '';

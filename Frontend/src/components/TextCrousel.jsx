@@ -14,7 +14,7 @@ const TextCarousel = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             setIndex((prevIndex) => (prevIndex + 1) % carouselTexts.length);
-        }, 4000); // Change text every 4 seconds
+        }, 2000); // Change text every 4 seconds
 
         return () => clearInterval(interval);
     }, []);
